@@ -41,6 +41,14 @@ class ServerUnitTests(unittest.TestCase):
             for key in ('name', 'date', 'numberOfPlaces'):
                 self.assertTrue(key in competition)
 
+    def test_get_club_by_name(self):
+        club = server.get_club_by_name("Simply Lift")
+        self.assertEqual(club['name'], "Simply Lift")
+
+    def test_get_competition_by_name(self):
+        competition = server.get_competition_by_name("Spring Festival")
+        self.assertEqual(competition['name'], "Spring Festival")
+
     def test_index(self):
         with self.captured_templates() as templates:
             response = self.app.test_client().get('/', follow_redirects=True)
@@ -70,6 +78,86 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(template.name, 'welcome.html')
             club = context['club']
             self.assertEqual(club['email'], email)
+
+    def test_book(self):
+        with self.captured_templates() as templates:
+            club_name = "She Lifts"
+            competition_name = "Fall Classic"
+            response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, 'booking.html')
+            club = context['club']
+            competition = context["competition"]
+            self.assertEqual(club['name'], club_name)
+            self.assertEqual(competition['name'], competition_name)
+
+    def test_book_index_error(self):
+        with self.captured_templates() as templates:
+            club_name = "She Lifts"
+            competition_name = "Fall"
+            response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
+            self.assertRaises(IndexError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, 'welcome.html')
+            self.assertIn(b"Something went wrong-please try again", response.data)
+
+    def test_purchase_places_index_error(self):
+        with self.captured_templates() as templates:
+            dico = dict()
+            dico['club'] = "Club does not exist"
+            dico['competition'] = "Competition does not exist"
+            dico['places'] = "1"
+            response = self.app.test_client().post("/purchasePlaces", data=dico, follow_redirects=True)
+            self.assertRaises(IndexError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, 'welcome.html')
+            self.assertIn(b"Something went wrong-please try again", response.data)
+
+    def test_purchase_places_assertion_error(self):
+        with self.captured_templates() as templates:
+            dico = dict()
+            dico['club'] = "Iron Temple"
+            dico['competition'] = "Fall Classic"
+            dico['places'] = "5"
+            points_before = int(server.get_club_by_name(dico['club'])['points'])
+            number_of_places_before = int(server.get_competition_by_name(dico['competition'])['numberOfPlaces'])
+            response = self.app.test_client().post("/purchasePlaces", data=dico, follow_redirects=True)
+            self.assertRaises(AssertionError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            points_after = int(context['club']['points'])
+            number_of_places_after = int(context['competition']['numberOfPlaces'])
+            self.assertEqual(points_before, points_after)
+            self.assertEqual(number_of_places_before, number_of_places_after)
+            self.assertEqual(template.name, 'booking.html')
+            self.assertIn(b"Number of places required is greater than club&#39;s points", response.data)
+
+    def test_purchase_places(self):
+        with self.captured_templates() as templates:
+            dico = dict()
+            dico['club'] = "Iron Temple"
+            dico['competition'] = "Fall Classic"
+            dico['places'] = "1"
+            points_before = int(server.get_club_by_name(dico['club'])['points'])
+            number_of_places_before = int(server.get_competition_by_name(dico['competition'])['numberOfPlaces'])
+            response = self.app.test_client().post("/purchasePlaces", data=dico, follow_redirects=True)
+            self.assertRaises(AssertionError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            points_after = int(context['club']['points'])
+            number_of_places_after = int(server.get_competition_by_name(dico['competition'])['numberOfPlaces'])
+            self.assertEqual(points_before - points_after, int(dico['places']))
+            self.assertEqual(number_of_places_before - number_of_places_after, int(dico['places']))
+            self.assertEqual(template.name, 'welcome.html')
+            self.assertIn(b"Great-booking complete!", response.data)
 
 
 if __name__ == "__main__":
