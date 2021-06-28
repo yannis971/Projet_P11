@@ -20,6 +20,8 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+MAX_BOOKING_PLACES = 12
+
 
 def get_club_by_name(name):
     return [c for c in clubs if c['name'] == name][0]
@@ -63,13 +65,14 @@ def purchasePlaces():
         club = get_club_by_name(request.form['club'])
         places_required = int(request.form['places'])
         points_allowed = int(club['points'])
-        assert points_allowed >= places_required
+        assert points_allowed >= places_required, "Number of places required is greater than club's points"
+        assert MAX_BOOKING_PLACES >= places_required, f"Number of places required is greater than {MAX_BOOKING_PLACES}"
     except IndexError:
         flash("Something went wrong-please try again")
         club = {"name": request.form['club'], "email": "", "points": ""}
         return render_template('welcome.html', club=club, competitions=competitions)
-    except AssertionError:
-        flash("Number of places required is greater than club's points")
+    except AssertionError as assertion_error:
+        flash(assertion_error)
         return render_template('booking.html', club=club, competition=competition)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
