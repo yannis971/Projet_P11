@@ -82,7 +82,7 @@ class ServerUnitTests(unittest.TestCase):
     def test_book(self):
         with self.captured_templates() as templates:
             club_name = "She Lifts"
-            competition_name = "Fall Classic"
+            competition_name = "Fall Classic 2021"
             response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(templates), 1)
@@ -104,6 +104,30 @@ class ServerUnitTests(unittest.TestCase):
             template, context = templates[0]
             self.assertEqual(template.name, 'welcome.html')
             self.assertIn(b"Something went wrong-please try again", response.data)
+
+    def test_book_past_competition(self):
+        with self.captured_templates() as templates:
+            club_name = "She Lifts"
+            competition_name = "Fall Classic"
+            response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
+            self.assertRaises(AssertionError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, 'welcome.html')
+            self.assertIn(b"Competition is no longer valid", response.data)
+
+    def test_book_value_error(self):
+        with self.captured_templates() as templates:
+            club_name = "She Lifts"
+            competition_name = "Date Error"
+            response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
+            self.assertRaises(ValueError)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, 'welcome.html')
+            self.assertIn(b"Something went wrong :", response.data)
 
     def test_purchase_places_index_error(self):
         with self.captured_templates() as templates:

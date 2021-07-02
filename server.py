@@ -1,5 +1,6 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
+from datetime import datetime
 
 
 def loadClubs():
@@ -51,9 +52,17 @@ def book(competition, club):
     try:
         foundClub = get_club_by_name(club)
         foundCompetition = get_competition_by_name(competition)
+        competition_date = datetime.fromisoformat(foundCompetition['date'])
+        assert competition_date >= datetime.now(), "Competition is no longer valid"
     except IndexError:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
+    except ValueError as date_exception:
+        flash(f"Something went wrong : {date_exception}")
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
+    except AssertionError as assertion_error:
+        flash(assertion_error)
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
     else:
         return render_template('booking.html', club=foundClub, competition=foundCompetition)
 

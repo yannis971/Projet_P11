@@ -9,6 +9,16 @@
             "name": "Fall Classic",
             "date": "2020-10-22 13:30:00",
             "numberOfPlaces": "13"
+        },
+        {
+            "name": "Fall Classic 2021",
+            "date": "2021-12-22 13:30:00",
+            "numberOfPlaces": "13"
+        },
+        {
+            "name": "Date Error",
+            "date": "05-12-2021 13:30:00",
+            "numberOfPlaces": "13"
         }
     ]
 }
