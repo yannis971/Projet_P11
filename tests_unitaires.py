@@ -1,6 +1,7 @@
 import unittest
 from contextlib import contextmanager
 from flask import template_rendered
+from parameterized import parameterized
 import server
 
 
@@ -57,32 +58,38 @@ class ServerUnitTests(unittest.TestCase):
             template, context = templates[0]
             self.assertEqual(template.name, 'index.html')
 
-    def test_show_summary_index_error(self):
+    @parameterized.expand([
+        ("john.doe@gmail.com", 200, b"Sorry, that email john.doe@gmail.com was not found."),
+        ("", 200, b"Sorry, that email  was not found."),
+    ])
+    def test_show_summary_index_error(self, email, status_code, message):
         with self.captured_templates() as templates:
-            email = "john.doe@gmail.com"
             response = self.app.test_client().post('/showSummary', data=dict(email=email,), follow_redirects=True)
             self.assertRaises(IndexError)
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, status_code)
             self.assertEqual(len(templates), 1)
             template, context = templates[0]
             self.assertEqual(template.name, 'welcome.html')
-            self.assertIn(b"Sorry, that email john.doe@gmail.com was not found.", response.data)
+            self.assertIn(message, response.data)
 
-    def test_show_summary(self):
+    @parameterized.expand([
+        ("admin@irontemple.com", 200),
+    ])
+    def test_show_summary(self, email, status_code):
         with self.captured_templates() as templates:
-            email = "admin@irontemple.com"
             response = self.app.test_client().post('/showSummary', data=dict(email=email,), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, status_code)
             self.assertEqual(len(templates), 1)
             template, context = templates[0]
             self.assertEqual(template.name, 'welcome.html')
             club = context['club']
             self.assertEqual(club['email'], email)
 
-    def test_book(self):
+    @parameterized.expand([
+        ("She Lifts", "Fall Classic 2021"),
+    ])
+    def test_book(self, club_name, competition_name):
         with self.captured_templates() as templates:
-            club_name = "She Lifts"
-            competition_name = "Fall Classic 2021"
             response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(templates), 1)
@@ -93,22 +100,30 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(club['name'], club_name)
             self.assertEqual(competition['name'], competition_name)
 
-    def test_book_index_error(self):
+    @parameterized.expand([
+        ("She Lifts", "Fall", 200),
+        ("She Lifts", "", 404),
+        ("Iron", "Spring Festival", 200),
+        ("", "Spring Festival", 404),
+        ("", "", 404),
+    ])
+    def test_book_index_error(self, club_name, competition_name, status_code):
         with self.captured_templates() as templates:
-            club_name = "She Lifts"
-            competition_name = "Fall"
             response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
             self.assertRaises(IndexError)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(templates), 1)
-            template, context = templates[0]
-            self.assertEqual(template.name, 'welcome.html')
-            self.assertIn(b"Something went wrong-please try again", response.data)
+            self.assertEqual(response.status_code, status_code)
+            if status_code == 200:
+                self.assertEqual(len(templates), 1)
+                template, context = templates[0]
+                self.assertEqual(template.name, 'welcome.html')
+                self.assertIn(b"Something went wrong-please try again", response.data)
 
-    def test_book_past_competition(self):
+    @parameterized.expand([
+        ("She Lifts", "Fall Classic"),
+        ("Iron Temple", "Spring Festival"),
+    ])
+    def test_book_past_competition(self, club_name, competition_name):
         with self.captured_templates() as templates:
-            club_name = "She Lifts"
-            competition_name = "Fall Classic"
             response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
             self.assertRaises(AssertionError)
             self.assertEqual(response.status_code, 200)
@@ -117,10 +132,12 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(template.name, 'welcome.html')
             self.assertIn(b"Competition is no longer valid", response.data)
 
-    def test_book_value_error(self):
+    @parameterized.expand([
+        ("She Lifts", "Date Error 01"),
+        ("She Lifts", "Date Error 02"),
+    ])
+    def test_book_value_error(self, club_name, competition_name):
         with self.captured_templates() as templates:
-            club_name = "She Lifts"
-            competition_name = "Date Error"
             response = self.app.test_client().get(f"/book/{competition_name}/{club_name}", follow_redirects=True)
             self.assertRaises(ValueError)
             self.assertEqual(response.status_code, 200)
@@ -129,7 +146,7 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(template.name, 'welcome.html')
             self.assertIn(b"Something went wrong :", response.data)
 
-    def test_purchase_places_index_error(self):
+    def test_purchase_places_index_error(self, **dico):
         with self.captured_templates() as templates:
             dico = dict()
             dico['club'] = "Club does not exist"
