@@ -1,6 +1,7 @@
 import unittest
 from contextlib import contextmanager
 from flask import template_rendered
+from parameterized import parameterized
 import server
 
 
@@ -10,12 +11,18 @@ class ServerUnitTests(unittest.TestCase):
         self.app = server.app
         self.app.config['TESTING'] = True
         self.app.config['DEBUG'] = False
+        self.response = None
+        self.template = None
+        self.context = None
 
     def tearDown(self) -> None:
         pass
 
     @contextmanager
     def captured_templates(self):
+        """
+        Method to capture template rendered and context
+        """
         recorded = []
 
         def record(sender, template, context, **extra):
@@ -27,7 +34,26 @@ class ServerUnitTests(unittest.TestCase):
         finally:
             template_rendered.disconnect(record, self.app)
 
+    def verify_response_template_context(self, url, status_code, template_name,
+                                         templates, method="GET", **data):
+        """
+        Method that generates response, template and context and then asserts
+        every result is OK
+        """
+        if method == "GET":
+            self.response = self.app.test_client().get(url, follow_redirects=True)
+        else:
+            self.response = self.app.test_client().post(url, data=data,
+                                                        follow_redirects=True)
+        self.assertEqual(self.response.status_code, status_code)
+        self.assertEqual(len(templates), 1)
+        self.template, self.context = templates[0]
+        self.assertEqual(self.template.name, template_name)
+
     def test_load_clubs(self):
+        """
+        Test function server.loadClubs()
+        """
         load_clubs = server.loadClubs()
         self.assertIsInstance(load_clubs, list)
         for club in load_clubs:
@@ -35,40 +61,66 @@ class ServerUnitTests(unittest.TestCase):
                 self.assertTrue(key in club)
 
     def test_load_competitions(self):
+        """
+        Test function server.loadCompetitions()
+        """
         load_competitions = server.loadCompetitions()
         self.assertIsInstance(load_competitions, list)
         for competition in load_competitions:
             for key in ('name', 'date', 'numberOfPlaces'):
                 self.assertTrue(key in competition)
 
-    def test_index(self):
-        with self.captured_templates() as templates:
-            response = self.app.test_client().get('/', follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(templates), 1)
-            template, context = templates[0]
-            self.assertEqual(template.name, 'index.html')
+    def test_get_club_by_name(self):
+        """
+        Test function server.get_club_by_name()
+        """
+        club = server.get_club_by_name("Simply Lift")
+        self.assertEqual(club['name'], "Simply Lift")
 
-    def test_show_summary_index_error(self):
+    def test_get_competition_by_name(self):
+        """
+        Test function server.get_competition_by_name()
+        """
+        competition = server.get_competition_by_name("Spring Festival")
+        self.assertEqual(competition['name'], "Spring Festival")
+
+    @parameterized.expand([
+        ("/", 200, "index.html"),
+    ])
+    def test_index(self, url, status_code, template_name):
+        """
+        Test function server.index()
+        """
         with self.captured_templates() as templates:
-            email = "john.doe@gmail.com"
-            response = self.app.test_client().post('/showSummary', data=dict(email=email,), follow_redirects=True)
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates)
+
+    @parameterized.expand([
+        ("/showSummary", 200, "index.html", "john.doe@gmail.com"),
+    ])
+    def test_show_summary_index_error(self, url, status_code, template_name, email):
+        """
+        Test function server.showSummary() with an non valid email
+        """
+        with self.captured_templates() as templates:
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates,
+                                                  "POST", **dict(email=email,))
             self.assertRaises(IndexError)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(templates), 1)
-            template, context = templates[0]
-            self.assertEqual(template.name, 'welcome.html')
-            self.assertIn(b"Sorry, that email john.doe@gmail.com was not found.", response.data)
+            self.assertIn(b"Sorry, that email john.doe@gmail.com was not found.", self.response.data)
 
-    def test_show_summary(self):
+    @parameterized.expand([
+        ("/showSummary", 200, "welcome.html", "admin@irontemple.com"),
+    ])
+    def test_show_summary(self, url, status_code, template_name, email):
+        """
+        Test function server.showSummary() with a valid email
+        """
         with self.captured_templates() as templates:
-            email = "admin@irontemple.com"
-            response = self.app.test_client().post('/showSummary', data=dict(email=email,), follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(templates), 1)
-            template, context = templates[0]
-            self.assertEqual(template.name, 'welcome.html')
-            club = context['club']
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates,
+                                                  "POST", **dict(email=email,))
+            club = self.context['club']
             self.assertEqual(club['email'], email)
 
 

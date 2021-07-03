@@ -1,4 +1,6 @@
 blinker==1.4
+coverage==5.5
+parameterized==0.8.1
 click==7.1.2
 Flask==1.1.2
 itsdangerous==1.1.0
