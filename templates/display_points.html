@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Display Points</title>
+{% endblock title %}
+
+{% block content %}
+<h2>List of clubs and their points</h2>
+
+<div>
+    <ul>
+        {% for club in clubs %}
+        <li><strong>{{ club["name"] }}</strong>: {{ club["points"] }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

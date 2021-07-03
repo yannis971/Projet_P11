@@ -220,6 +220,28 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(template.name, 'welcome.html')
             self.assertIn(b"Great-booking complete!", response.data)
 
+    @parameterized.expand([
+        (200, "display_points.html"),
+    ])
+    def test_display_points(self, status_code, template_name):
+        with self.captured_templates() as templates:
+            response = self.app.test_client().get('/displayPoints', follow_redirects=True)
+            self.assertEqual(response.status_code, status_code)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, template_name)
+
+    @parameterized.expand([
+        (200, "index.html"),
+    ])
+    def test_logout(self, status_code, template_name):
+        with self.captured_templates() as templates:
+            response = self.app.test_client().get('/logout', follow_redirects=True)
+            self.assertEqual(response.status_code, status_code)
+            self.assertEqual(len(templates), 1)
+            template, context = templates[0]
+            self.assertEqual(template.name, template_name)
+
 
 if __name__ == "__main__":
     unittest.main()
