@@ -1,10 +1,8 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUDLFT Registration</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}
+    <title>Index | GUDLFT Registration</title>
+{% endblock title %}
+{% block content %}
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
     Please enter your secretary email to continue:
     <form action="showSummary" method="post">
@@ -12,5 +10,13 @@
         <input type="email" name="email" id=""/>
         <button type="submit">Enter</button>
     </form>
-</body>
-</html>
+    {% with messages = get_flashed_messages()%}
+        {% if messages %}
+            <ul>
+           {% for message in messages %}
+                <li>{{message}}</li>
+            {% endfor %}
+           </ul>
+        {% endif%}
+    {%endwith%}
+{% endblock content %}
