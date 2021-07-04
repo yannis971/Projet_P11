@@ -132,7 +132,7 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(club['email'], email)
 
     @parameterized.expand([
-        ("She Lifts", "Fall Classic", 200, "booking.html"),
+        ("She Lifts", "Fall Classic 2021", 200, "booking.html"),
     ])
     def test_book(self, club_name, competition_name, status_code, template_name):
         """
@@ -168,6 +168,36 @@ class ServerUnitTests(unittest.TestCase):
             if status_code == 200:
                 self.assertRaises(IndexError)
                 self.assertIn(b"Something went wrong-please try again", self.response.data)
+
+    @parameterized.expand([
+        ("She Lifts", "Fall Classic", 200, "welcome.html"),
+        ("Iron Temple", "Spring Festival", 200, "welcome.html"),
+    ])
+    def test_book_past_competition(self, club_name, competition_name, status_code, template_name):
+        """
+        Test function server.book(competition, club) with a passed competition
+        """
+        with self.captured_templates() as templates:
+            url = f"/book/{competition_name}/{club_name}"
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates)
+            self.assertRaises(AssertionError)
+            self.assertIn(b"Competition is no longer valid", self.response.data)
+
+    @parameterized.expand([
+        ("She Lifts", "Date Error 01", 200, "welcome.html"),
+        ("She Lifts", "Date Error 02", 200, "welcome.html"),
+    ])
+    def test_book_value_error(self, club_name, competition_name, status_code, template_name):
+        """
+        Test function server.book(competition, club) with a non valid competition date
+        """
+        with self.captured_templates() as templates:
+            url = f"/book/{competition_name}/{club_name}"
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates)
+            self.assertRaises(ValueError)
+            self.assertIn(b"Something went wrong :", self.response.data)
 
     @parameterized.expand([
         ("/purchasePlaces", 200, "welcome.html", "Club does not exist", "Competition does not exist"),
