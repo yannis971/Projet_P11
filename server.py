@@ -43,7 +43,7 @@ def showSummary():
         club = [club for club in clubs if club['email'] == request.form['email']][0]
     except IndexError:
         flash(f"Sorry, that email {request.form['email']} was not found.")
-        club = {"name": "", "email": "", "points": ""}
+        return render_template('index.html')
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
@@ -98,4 +98,5 @@ def displayPoints():
 
 @app.route('/logout')
 def logout():
+    flash('You are logged out !')
     return redirect(url_for('index'))
