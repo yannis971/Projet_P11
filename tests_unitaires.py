@@ -139,26 +139,6 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(template.name, 'booking.html')
             self.assertIn(b"Number of places required is greater than club&#39;s points", response.data)
 
-    def test_purchase_more_than_max_places(self):
-        with self.captured_templates() as templates:
-            dico = dict()
-            dico['club'] = "Simply Lift"
-            dico['competition'] = "Spring Festival"
-            dico['places'] = "13"
-            points_before = int(server.get_club_by_name(dico['club'])['points'])
-            number_of_places_before = int(server.get_competition_by_name(dico['competition'])['numberOfPlaces'])
-            response = self.app.test_client().post("/purchasePlaces", data=dico, follow_redirects=True)
-            self.assertRaises(AssertionError)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(templates), 1)
-            template, context = templates[0]
-            points_after = int(context['club']['points'])
-            number_of_places_after = int(context['competition']['numberOfPlaces'])
-            self.assertEqual(points_before, points_after)
-            self.assertEqual(number_of_places_before, number_of_places_after)
-            self.assertEqual(template.name, 'booking.html')
-            self.assertIn(b"Number of places required is greater than 12", response.data)
-
     def test_purchase_places(self):
         with self.captured_templates() as templates:
             dico = dict()
