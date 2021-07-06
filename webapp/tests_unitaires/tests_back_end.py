@@ -2,7 +2,7 @@ import unittest
 from contextlib import contextmanager
 from flask import template_rendered
 from parameterized import parameterized
-import server
+from webapp import server
 
 
 class ServerUnitTests(unittest.TestCase):
