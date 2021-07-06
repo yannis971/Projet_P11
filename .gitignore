@@ -3,3 +3,5 @@
 env/
 htmlcov/
 __pycache__/
+webapp/__pycache__/
+webapp/*/__pycache__/
