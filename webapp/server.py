@@ -1,27 +1,27 @@
+import os
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 from datetime import datetime
 
 
+app = Flask(__name__)
+app.config.from_object('config')
+
+
 def loadClubs():
-    with open('clubs.json') as c:
-        listOfClubs = json.load(c)['clubs']
-        return listOfClubs
+    with open(os.path.join(app.config['BASE_DIR'], os.path.dirname(__file__), 'clubs.json')) as c:
+         listOfClubs = json.load(c)['clubs']
+         return listOfClubs
 
 
 def loadCompetitions():
-    with open('competitions.json') as comps:
-        listOfCompetitions = json.load(comps)['competitions']
-        return listOfCompetitions
+    with open(os.path.join(app.config['BASE_DIR'], os.path.dirname(__file__), 'competitions.json')) as comps:
+         listOfCompetitions = json.load(comps)['competitions']
+         return listOfCompetitions
 
-
-app = Flask(__name__)
-app.secret_key = 'something_special'
 
 competitions = loadCompetitions()
 clubs = loadClubs()
-
-MAX_BOOKING_PLACES = 12
 
 
 def get_club_by_name(name):
@@ -75,7 +75,7 @@ def purchasePlaces():
         places_required = int(request.form['places'])
         points_allowed = int(club['points'])
         assert points_allowed >= places_required, "Number of places required is greater than club's points"
-        assert MAX_BOOKING_PLACES >= places_required, f"Number of places required is greater than {MAX_BOOKING_PLACES}"
+        assert app.config['MAX_BOOKING_PLACES'] >= places_required, f"Number of places required is greater than {app.config['MAX_BOOKING_PLACES']}"
     except IndexError:
         flash("Something went wrong-please try again")
         club = {"name": request.form['club'], "email": "", "points": ""}
@@ -85,6 +85,7 @@ def purchasePlaces():
         return render_template('booking.html', club=club, competition=competition)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
+        # this bug is already fixed and tested in branch 02_bug_clubs_using_more_points_allowed
         club['points'] = int(club['points']) - places_required
         flash('Great-booking complete!')
         return render_template('welcome.html', club=club, competitions=competitions)
