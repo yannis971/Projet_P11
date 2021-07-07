@@ -85,13 +85,6 @@ class ServerUnitTests(unittest.TestCase):
         competition = server.get_competition_by_name("Spring Festival")
         self.assertEqual(competition['name'], "Spring Festival")
 
-    def test_index(self):
-        """
-        Test function server.get_competition_by_name()
-        """
-        competition = server.get_competition_by_name("Spring Festival")
-        self.assertEqual(competition['name'], "Spring Festival")
-
     @parameterized.expand([
         ("/", 200, "index.html"),
     ])

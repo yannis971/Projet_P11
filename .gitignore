@@ -5,3 +5,4 @@ htmlcov/
 __pycache__/
 webapp/__pycache__/
 webapp/*/__pycache__/
+geckodriver.log
