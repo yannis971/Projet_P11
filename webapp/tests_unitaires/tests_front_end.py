@@ -10,7 +10,7 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         self.driver = webdriver.Firefox()
 
     @parameterized.expand([
-        ("Fall Classic", "Iron Temple", "14"),
+        ("Fall Classic 2021", "Iron Temple", "14"),
     ])
     def test_places_required_greater_than_competition_places(self, competition_name, club_name, places):
         """
@@ -26,7 +26,7 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         assert "Number of places required is greater than competition's number of places" in driver.page_source
 
     @parameterized.expand([
-        ("Fall Classic", "Iron Temple", "5"),
+        ("Fall Classic 2021", "Iron Temple", "5"),
     ])
     def test_places_required_greater_than_club_points(self, competition_name, club_name, places):
         """
@@ -42,7 +42,7 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         assert "Number of places required is greater than club's points" in driver.page_source
 
     @parameterized.expand([
-        ("Spring Festival", "Simply Lift", "13"),
+        ("Spring Festival 2021", "Simply Lift", "13"),
     ])
     def test_places_required_greater_than_max_points(self, competition_name, club_name, places):
         """
