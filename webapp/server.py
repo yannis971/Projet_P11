@@ -85,6 +85,7 @@ def purchasePlaces():
         return render_template('booking.html', club=club, competition=competition)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
+        # this bug is already fixed and tested in branch 02_bug_clubs_using_more_points_allowed
         club['points'] = int(club['points']) - places_required
         flash('Great-booking complete!')
         return render_template('welcome.html', club=club, competitions=competitions)
