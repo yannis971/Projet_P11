@@ -41,6 +41,22 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         places_required.send_keys(Keys.RETURN)
         assert "Number of places required is greater than club's points" in driver.page_source
 
+    @parameterized.expand([
+        ("Spring Festival", "Simply Lift", "13"),
+    ])
+    def test_places_required_greater_than_max_points(self, competition_name, club_name, places):
+        """
+        Front-End unit test in UI booking.html for case :
+        places required greater than club's points
+        """
+        driver = self.driver
+        driver.get(f"http://127.0.0.1:5000/book/{competition_name}/{club_name}")
+        self.assertIn(f"Booking for {competition_name}", driver.title)
+        places_required = driver.find_element_by_id("places")
+        places_required.send_keys(places)
+        places_required.send_keys(Keys.RETURN)
+        assert "Number of places required is greater than maximum places authorized" in driver.page_source
+
     def tearDown(self):
         self.driver.close()
 

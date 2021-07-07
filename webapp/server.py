@@ -18,10 +18,9 @@ def loadCompetitions():
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
 
+
 competitions = loadCompetitions()
 clubs = loadClubs()
-
-MAX_BOOKING_PLACES = 12
 
 
 def get_club_by_name(name):
@@ -67,7 +66,7 @@ def purchasePlaces():
         places_required = int(request.form['places'])
         points_allowed = int(club['points'])
         assert points_allowed >= places_required, "Number of places required is greater than club's points"
-        assert MAX_BOOKING_PLACES >= places_required, f"Number of places required is greater than {MAX_BOOKING_PLACES}"
+        assert app.config['MAX_BOOKING_PLACES'] >= places_required, f"Number of places required is greater than {app.config['MAX_BOOKING_PLACES']}"
     except IndexError:
         flash("Something went wrong-please try again")
         club = {"name": request.form['club'], "email": "", "points": ""}
