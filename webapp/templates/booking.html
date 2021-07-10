@@ -14,14 +14,17 @@
         <button type="submit" id="submit-form">Book</button>
         <p id="error-message"></p>
     </form>
-
     <script type="text/javascript" src="{{ url_for('static', filename='js/booking-front-validation.js') }}"></script>
-    {% with messages = get_flashed_messages()%}
+    {% with messages = get_flashed_messages(with_categories=True)%}
         {% if messages %}
             <ul>
-           {% for message in messages %}
-                <li>{{message}}</li>
-            {% endfor %}
+           {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <li class="alert alert-danger">{{message}}</li>
+                {% else %}
+                    <li class="alert alert-success">{{message}}</li>
+                {% endif %}
+           {% endfor %}
            </ul>
         {% endif%}
     {%endwith%}

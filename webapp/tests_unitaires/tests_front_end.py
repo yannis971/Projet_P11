@@ -1,4 +1,5 @@
 import unittest
+import time
 from parameterized import parameterized
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -8,6 +9,13 @@ class FrontEndBookingUnitTests(unittest.TestCase):
 
     def setUp(self):
         self.driver = webdriver.Firefox()
+
+    @staticmethod
+    def pause():
+        """
+        Method pause to let the user see the page
+        """
+        time.sleep(2)
 
     @parameterized.expand([
         ("Fall Classic", "Iron Temple", "14"),
@@ -24,6 +32,7 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         places_required.send_keys(places)
         places_required.send_keys(Keys.RETURN)
         assert "Number of places required is greater than competition's number of places" in driver.page_source
+        self.pause()
 
     @parameterized.expand([
         ("Fall Classic", "Iron Temple", "5"),
@@ -40,6 +49,7 @@ class FrontEndBookingUnitTests(unittest.TestCase):
         places_required.send_keys(places)
         places_required.send_keys(Keys.RETURN)
         assert "Number of places required is greater than club's points" in driver.page_source
+        self.pause()
 
     def tearDown(self):
         self.driver.close()
