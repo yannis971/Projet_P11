@@ -11,12 +11,16 @@
         <label for="places">How many places?</label><input type="number" name="places" id="places" min="0" max="{{competition['numberOfPlaces']}}"/>
         <button type="submit">Book</button>
     </form>
-    {% with messages = get_flashed_messages()%}
+    {% with messages = get_flashed_messages(with_categories=True)%}
         {% if messages %}
             <ul>
-           {% for message in messages %}
-                <li>{{message}}</li>
-            {% endfor %}
+           {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <li class="alert alert-danger">{{message}}</li>
+                {% else %}
+                    <li class="alert alert-success">{{message}}</li>
+                {% endif %}
+           {% endfor %}
            </ul>
         {% endif%}
     {%endwith%}
