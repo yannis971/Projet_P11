@@ -1,6 +1,6 @@
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
-import selenium.webdriver.support.ui as ui
+from selenium.webdriver.support import ui
 from selenium.webdriver.common.action_chains import ActionChains
 from flask import url_for
 import time
