@@ -5,13 +5,36 @@
 {% endblock title %}
 
 {% block content %}
-<h2>List of clubs and their points</h2>
+<br/>
+<h2 align="center">List of clubs and their points</h2>
+<br/>
 
-<div>
-    <ul>
-        {% for club in clubs %}
-        <li><strong>{{ club["name"] }}</strong>: {{ club["points"] }}</li>
-        {% endfor %}
-    </ul>
-</div>
+{% if clubs %}
+    <div class="container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <table class="tablecenterheadCSS table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" >Name</th>
+                            <th scope="col">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for club in clubs %}
+                        <tr>
+                            <td align="center">{{ club["name"] }}</td>
+                            <td align="center">{{ club["points"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center">No club to display</div>
+{% endif %}
 {% endblock content %}
