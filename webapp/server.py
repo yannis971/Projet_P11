@@ -1,7 +1,7 @@
 import os
 import json
-from flask import Flask, render_template, request, redirect, flash, url_for
 from datetime import datetime
+from flask import Flask, flash, render_template, request, redirect, session, url_for
 
 
 app = Flask(__name__)
@@ -37,13 +37,18 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/showSummary', methods=['POST'])
+@app.route('/showSummary', methods=['GET', 'POST'])
 def showSummary():
+    if request.method == "POST":
+        session['email'] = request.form['email']
+    if request.method == "GET" and 'email' not in session:
+        flash("Something went wrong-please try again", category='error')
+        return redirect(url_for('index'))
     try:
-        club = [club for club in clubs if club['email'] == request.form['email']][0]
+        club = [club for club in clubs if club['email'] == session['email']][0]
     except IndexError:
-        flash(f"Sorry, that email {request.form['email']} was not found.")
-        return render_template('index.html')
+        flash(f"Sorry, that email {request.form['email']} was not found.", category='error')
+        return redirect(url_for('index'))
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
@@ -55,13 +60,13 @@ def book(competition, club):
         competition_date = datetime.fromisoformat(foundCompetition['date'])
         assert competition_date >= datetime.now(), "Competition is no longer valid"
     except IndexError:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        flash("Something went wrong-please try again", category='error')
+        return redirect(url_for('index'))
     except ValueError as date_exception:
-        flash(f"Something went wrong : {date_exception}")
+        flash(f"Something went wrong : {date_exception}", category='error')
         return render_template('welcome.html', club=foundClub, competitions=competitions)
     except AssertionError as assertion_error:
-        flash(assertion_error)
+        flash(assertion_error, category='error')
         return render_template('welcome.html', club=foundClub, competitions=competitions)
     else:
         return render_template('booking.html', club=foundClub, competition=foundCompetition)
@@ -77,11 +82,10 @@ def purchasePlaces():
         assert points_allowed >= places_required, "Number of places required is greater than club's points"
         assert app.config['MAX_BOOKING_PLACES'] >= places_required, f"Number of places required is greater than {app.config['MAX_BOOKING_PLACES']}"
     except IndexError:
-        flash("Something went wrong-please try again")
-        club = {"name": request.form['club'], "email": "", "points": ""}
-        return render_template('welcome.html', club=club, competitions=competitions)
+        flash("Something went wrong-please try again", category='error')
+        return redirect(url_for('index'))
     except AssertionError as assertion_error:
-        flash(assertion_error)
+        flash(assertion_error, category='error')
         return render_template('booking.html', club=club, competition=competition)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
@@ -95,4 +99,6 @@ def purchasePlaces():
 
 @app.route('/logout')
 def logout():
+    session.pop('email', None)
+    flash('You are logged out !')
     return redirect(url_for('index'))
