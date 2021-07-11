@@ -46,7 +46,7 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         time.sleep(app.config['IMPLICIT_WAIT'])
 
     @parameterized.expand([
-        ("Fall Classic", "Iron Temple", "14"),
+        ("Fall Classic 2021", "Iron Temple", "14"),
     ])
     def test_places_required_greater_than_competition_places(self, competition_name, club_name, places):
         """
@@ -62,7 +62,7 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         self.pause()
 
     @parameterized.expand([
-        ("Fall Classic", "Iron Temple", "5"),
+        ("Fall Classic 2021", "Iron Temple", "5"),
     ])
     def test_places_required_greater_than_club_points(self, competition_name, club_name, places):
         """
@@ -78,7 +78,7 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         self.pause()
 
     @parameterized.expand([
-        ("Spring Festival", "Simply Lift", "13"),
+        ("Spring Festival 2021", "Simply Lift", "13"),
     ])
     def test_places_required_greater_than_max_points(self, competition_name, club_name, places):
         """
@@ -94,8 +94,8 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         self.pause()
 
     @parameterized.expand([
-        ("Spring Festival", "Simply Lift", "john@simplylift.co", "12", "Points available: 1"),
-        ("Fall Classic", "Iron Temple", "admin@irontemple.com",  "4", "Points available: 0"),
+        ("Spring Festival 2021", "Simply Lift", "john@simplylift.co", "12", "Points available: 1"),
+        ("Fall Classic 2021", "Iron Temple", "admin@irontemple.com",  "4", "Points available: 0"),
     ])
     def test_places_required_ok(self, competition_name, club_name, club_email, places, expected_club_points):
         """
