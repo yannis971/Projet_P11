@@ -1,6 +1,6 @@
 import unittest
 from contextlib import contextmanager
-from flask import template_rendered
+from flask import session, template_rendered
 from parameterized import parameterized
 from webapp import server
 
@@ -35,13 +35,20 @@ class ServerUnitTests(unittest.TestCase):
             template_rendered.disconnect(record, self.app)
 
     def verify_response_template_context(self, url, status_code, template_name,
-                                         templates, method="GET", **data):
+                                         templates, method="GET", set_session=False, **data):
         """
         Method that generates response, template and context and then asserts
         every result is OK
         """
         if method == "GET":
-            self.response = self.app.test_client().get(url, follow_redirects=True)
+            if set_session:
+                with self.app.test_client() as test_client:
+                    with test_client.session_transaction() as session_transaction:
+                        for k, v in data.items():
+                            session_transaction[k] = v
+                    self.response = test_client.get(url, follow_redirects=True)
+            else:
+                self.response = self.app.test_client().get(url, follow_redirects=True)
         else:
             self.response = self.app.test_client().post(url, data=data,
                                                         follow_redirects=True)
@@ -125,6 +132,33 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(club['email'], email)
 
     @parameterized.expand([
+        ("/showSummary", 200, "welcome.html", "admin@irontemple.com"),
+    ])
+    def test_show_summary_get_method(self, url, status_code, template_name, email):
+        """
+        Test function server.showSummary() with a valid email and get method
+        """
+        with self.captured_templates() as templates:
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates,
+                                                  method="GET", set_session=True, **dict(email=email,))
+            club = self.context['club']
+            self.assertEqual(club['email'], email)
+
+    @parameterized.expand([
+        ("/showSummary", 200, "index.html", "admin@irontemple.com"),
+    ])
+    def test_show_summary_get_method_no_session(self, url, status_code, template_name, email):
+        """
+        Test function server.showSummary() with an non valid email
+        """
+        with self.captured_templates() as templates:
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates,
+                                                  method="GET", set_session=False, **dict(email=email,))
+            self.assertIn(b"Something went wrong-please try again", self.response.data)
+
+    @parameterized.expand([
         ("She Lifts", "Fall Classic 2021", 200, "booking.html"),
     ])
     def test_book(self, club_name, competition_name, status_code, template_name):
@@ -142,9 +176,9 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(competition['name'], competition_name)
 
     @parameterized.expand([
-        ("She Lifts", "Fall", 200, "welcome.html"),
+        ("She Lifts", "Fall", 200, "index.html"),
         ("She Lifts", "", 404, None),
-        ("Iron", "Spring Festival", 200, "welcome.html"),
+        ("Iron", "Spring Festival", 200, "index.html"),
         ("", "Spring Festival", 404, None),
         ("", "", 404, None),
     ])
@@ -193,10 +227,10 @@ class ServerUnitTests(unittest.TestCase):
             self.assertIn(b"Something went wrong :", self.response.data)
 
     @parameterized.expand([
-        ("/purchasePlaces", 200, "welcome.html", "Club does not exist", "Competition does not exist"),
-        ("/purchasePlaces", 200, "welcome.html", "Simply Lift", "Competition does not exist"),
-        ("/purchasePlaces", 200, "welcome.html", "Club does not exist", "Fall Classic"),
-        ("/purchasePlaces", 200, "welcome.html", "", ""),
+        ("/purchasePlaces", 200, "index.html", "Club does not exist", "Competition does not exist"),
+        ("/purchasePlaces", 200, "index.html", "Simply Lift", "Competition does not exist"),
+        ("/purchasePlaces", 200, "index.html", "Club does not exist", "Fall Classic"),
+        ("/purchasePlaces", 200, "index.html", "", ""),
     ])
     def test_purchase_places_index_error(self, url, status_code,
                                          template_name, club_name,
@@ -289,6 +323,18 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(points_before - points_after, int(data['places']))
             self.assertEqual(number_of_places_before - number_of_places_after, int(data['places']))
             self.assertIn(b"Great-booking complete!", self.response.data)
+
+    @parameterized.expand([
+        ("/logout", 200, "index.html"),
+    ])
+    def test_logout(self, url, status_code, template_name):
+        """
+        Test function server.logout
+        """
+        with self.captured_templates() as templates:
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates)
+            self.assertIn(b"You are logged out !", self.response.data)
 
 
 if __name__ == "__main__":
