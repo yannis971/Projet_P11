@@ -1,5 +1,4 @@
 import unittest
-import time
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
@@ -7,9 +6,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import ui
 from parameterized import parameterized
 import multiprocessing
-import logging
+
 
 from .. import app
+
+opts = FirefoxOptions()
+opts.add_argument("--headless")
 
 
 opts = FirefoxOptions()
