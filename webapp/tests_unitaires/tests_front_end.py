@@ -1,5 +1,4 @@
 import unittest
-import time
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
