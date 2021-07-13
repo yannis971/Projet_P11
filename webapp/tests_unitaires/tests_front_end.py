@@ -2,31 +2,32 @@ import unittest
 import time
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import ui
 from parameterized import parameterized
+import multiprocessing
 
 from .. import app
+
+opts = FirefoxOptions()
+opts.add_argument("--headless")
 
 
 class FrontEndBookingUnitTests(LiveServerTestCase):
     """
     class to test front end booking
     """
+    # Allows fork process on macOS and Windows
+    multiprocessing.set_start_method("fork")
+
     def create_app(self):
         app.config.from_object('webapp.tests_unitaires.config')
         return app
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(options=opts)
         self.wait = ui.WebDriverWait(self.driver, 1000)
-
-    @staticmethod
-    def pause():
-        """
-        Method pause to let the user see the page
-        """
-        time.sleep(app.config['IMPLICIT_WAIT'])
 
     @parameterized.expand([
         ("Fall Classic", "Iron Temple", "14"),
@@ -42,7 +43,6 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         places_required.send_keys(places)
         places_required.send_keys(Keys.RETURN)
         assert "Number of places required is greater than competition's number of places" in self.driver.page_source
-        self.pause()
 
     @parameterized.expand([
         ("Fall Classic", "Iron Temple", "5"),
@@ -58,7 +58,6 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         places_required.send_keys(places)
         places_required.send_keys(Keys.RETURN)
         assert "Number of places required is greater than club's points" in self.driver.page_source
-        self.pause()
 
     def tearDown(self):
         self.driver.close()
