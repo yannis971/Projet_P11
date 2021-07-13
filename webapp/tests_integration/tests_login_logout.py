@@ -1,17 +1,25 @@
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.support import ui
 from selenium.webdriver.common.action_chains import ActionChains
 from flask import url_for
 import time
+import multiprocessing
 
 from .. import app
+
+opts = FirefoxOptions()
+opts.add_argument("--headless")
 
 
 class LoginLogoutTests(LiveServerTestCase):
     """
     class to test login and logout
     """
+    # Allows fork process on macOS and Windows
+    multiprocessing.set_start_method("fork")
+
     def create_app(self):
         app.config.from_object('webapp.tests_integration.config')
         return app
@@ -19,7 +27,7 @@ class LoginLogoutTests(LiveServerTestCase):
     def setUp(self):
         """Setup the test driver and create test users"""
         # Le navigateur est Firefox
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(options=opts)
         self.wait = ui.WebDriverWait(self.driver, 1000)
 
     def tearDown(self):
@@ -43,20 +51,12 @@ class LoginLogoutTests(LiveServerTestCase):
         text_field.clear()
         text_field.send_keys(text)
 
-    @staticmethod
-    def pause():
-        """
-        Method pause to let the user see the page
-        """
-        time.sleep(app.config['IMPLICIT_WAIT'])
-
     def sees_page(self, page, selector):
         """
         Method to check display of page
         """
         self.wait.until(lambda driver: self.get_el(selector))
         assert self.driver.current_url == url_for(page, _external=True)
-        self.pause()
 
     def submits_login_form(self, email):
         """

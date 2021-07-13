@@ -13,5 +13,3 @@ MAX_BOOKING_PLACES = 12
 ENV = 'test'
 DEBUG =  False
 TESTING = True
-
-
