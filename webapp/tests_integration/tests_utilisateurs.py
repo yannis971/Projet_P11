@@ -45,9 +45,12 @@ class UsersTests(LiveServerTestCase):
     def clicks_on_book(self, competition_name, club_name):
         links = self.driver.find_elements_by_tag_name("a")
         url = self.get_server_url() + "/book/" + f"{competition_name}/{club_name}"
+        print("url", url)
         for link in links:
+            print(link.get_attribute("href").replace("%20", " "))
             if link.get_attribute("href").replace("%20", " ") == url:
                 ActionChains(self.driver).click(link).perform()
+                break
 
     def enter_text_field(self, selector, text):
         """
