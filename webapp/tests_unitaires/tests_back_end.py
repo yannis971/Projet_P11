@@ -1,6 +1,6 @@
 import unittest
 from contextlib import contextmanager
-from flask import session, template_rendered
+from flask import template_rendered
 from parameterized import parameterized
 from webapp import server
 
