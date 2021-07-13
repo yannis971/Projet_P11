@@ -1,6 +1,6 @@
 import unittest
 from contextlib import contextmanager
-from flask import session, template_rendered
+from flask import template_rendered
 from parameterized import parameterized
 from webapp import server
 
@@ -143,19 +143,7 @@ class ServerUnitTests(unittest.TestCase):
                                                   method="GET", set_session=True, **dict(email=email,))
             club = self.context['club']
             self.assertEqual(club['email'], email)
-        """
-        with self.captured_templates() as templates:
-            with self.app.test_client() as test_client:
-                with test_client.session_transaction() as session_transaction:
-                    session_transaction['email'] = email
-                self.response = test_client.get(url, follow_redirects=True)
-                self.assertEqual(self.response.status_code, status_code)
-                self.assertEqual(len(templates), 1)
-                self.template, self.context = templates[0]
-                self.assertEqual(self.template.name, template_name)
-                club = self.context['club']
-                self.assertEqual(club['email'], email)
-        """
+
     @parameterized.expand([
         ("/showSummary", 200, "index.html", "admin@irontemple.com"),
     ])
