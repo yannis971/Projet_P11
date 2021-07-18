@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-<title>Display Points</title>
+<title>Display Points | GUDLFT Registration</title>
 {% endblock title %}
 
 {% block content %}
@@ -37,4 +37,6 @@
 {% else %}
     <div class="alert alert-info text-center">No club to display</div>
 {% endif %}
+<br />
+<a href="{{url_for('logout')}}" id="logout-link">Logout</a>
 {% endblock content %}

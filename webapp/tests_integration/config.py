@@ -7,7 +7,12 @@ SERVER_NAME = 'localhost:8943'
 VALID_EMAIL = "john@simplylift.co"
 NON_VALID_EMAIL = "john.doe@example.com"
 
+NB_CLUBS = 3
+
 COMPETITION_NAME = "Spring Festival 2021"
 CLUB_NAME = "Simply Lift"
 PLACES = 3
-EXPECTED_POINTS = "Points available: 1"
+EXPECTED_POINTS = "10"
+POINTS_AVAILABLE = f"Points available: {EXPECTED_POINTS}"
+
+INITIAL_POINTS = "13"
