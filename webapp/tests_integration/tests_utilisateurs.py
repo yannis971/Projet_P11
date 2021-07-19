@@ -318,4 +318,3 @@ class UsersTests(LiveServerTestCase):
         assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][1],
                                                   club=app.config['CLUB_NAME'][0], _external=True)
         self.assertIn("Competition is no longer valid", self.driver.page_source.__str__())
-
