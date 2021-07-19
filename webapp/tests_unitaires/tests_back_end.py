@@ -270,6 +270,14 @@ class ServerUnitTests(unittest.TestCase):
             self.assertEqual(number_of_places_before - number_of_places_after, int(data['places']))
             self.assertIn(b"Great-booking complete!", self.response.data)
 
+    @parameterized.expand([
+        ("/logout", 200, "index.html"),
+    ])
+    def test_logout(self, url, status_code, template_name):
+        with self.captured_templates() as templates:
+            self.verify_response_template_context(url, status_code,
+                                                  template_name, templates)
+            self.assertIn(b"You are logged out !", self.response.data)
 
 if __name__ == "__main__":
     unittest.main()
