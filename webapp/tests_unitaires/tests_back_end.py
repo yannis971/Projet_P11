@@ -266,7 +266,7 @@ class ServerUnitTests(unittest.TestCase):
             points_after = int(self.context['club']['points'])
             number_of_places_after = int(self.context['competition']['numberOfPlaces'])
             self.assertEqual(points_before, points_after)
-            self.assertEqual(number_of_places_before, number_of_places_after) 
+            self.assertEqual(number_of_places_before, number_of_places_after)
             self.assertIn(b"Number of places required is greater than 12", self.response.data)
 
     @parameterized.expand([

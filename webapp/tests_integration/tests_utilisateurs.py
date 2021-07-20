@@ -49,6 +49,11 @@ class UsersTests(LiveServerTestCase):
             if link.get_attribute("href").replace("%20", " ") == url:
                 ActionChains(self.driver).click(link).perform()
 
+    def ctrl_logout(self, route):
+        self.wait.until(lambda driver: route not in self.driver.current_url)
+        self.sees_page('index', '#email')
+        self.assertIn("You are logged out !", self.driver.page_source.__str__())
+
     def enter_text_field(self, selector, text):
         """
         Method to feed a text field
@@ -84,40 +89,16 @@ class UsersTests(LiveServerTestCase):
         1. User sees index page
         2. User logins with a valid email
         3. User sees showSummary page
-        4. User books places for competitions
-        5. User sees purchasePlaces page
-        6. User logouts
-        7. User sees index page after redirecting
+        4. User logouts
+        5. User sees index page after redirecting
         """
         self.driver.get(self.get_server_url())
-
-        # User sees index page and then fills and submits email form
         self.sees_page('index', '#email')
-        self.submits_login_form(app.config['VALID_EMAIL'])
-
-        # User sees showSummary page and then clicks on competition link to book places
+        self.submits_login_form(app.config['VALID_EMAIL'][0])
         self.sees_page('showSummary', '#logout-link')
-        self.clicks_on_book(app.config['COMPETITION_NAME'], app.config['CLUB_NAME'])
-
-        # User sees booking page and then fills places and submits booking form
-        self.wait.until(lambda driver: self.get_el('#submit-form'))
-        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'],
-                                                  club=app.config['CLUB_NAME'], _external=True)
-        self.assertIn(f"Booking for {app.config['COMPETITION_NAME']}", self.driver.title)
-        self.submits_booking_form(app.config['PLACES'])
-
-        # User sees showSummary page redirected from purchasePlaces
-        self.sees_page('purchasePlaces', '#logout-link')
-        self.assertIn("Summary | GUDLFT Registration", self.driver.title)
-        self.assertIn(f"Welcome, {app.config['VALID_EMAIL']}", self.driver.find_element_by_tag_name("h2").text)
-        self.assertIn("Great-booking complete!", self.driver.page_source.__str__())
-        self.assertIn(app.config['EXPECTED_POINTS'], self.driver.page_source.__str__())
-
-        # User logs out
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][0]}", self.driver.find_element_by_tag_name("h2").text)
         self.clicks_on_logout()
-        self.wait.until(lambda driver: 'showSummary' not in self.driver.current_url)
-        self.sees_page('index', '#email')
-        self.assertIn("You are logged out !", self.driver.page_source.__str__())
+        self.ctrl_logout('showSummary')
 
 
     def test_user_login_denied(self):
@@ -133,3 +114,90 @@ class UsersTests(LiveServerTestCase):
         self.wait.until(lambda driver: 'showSummary' not in self.driver.current_url)
         self.sees_page('index', '#email')
         self.assertIn(f"Sorry, that email {app.config['NON_VALID_EMAIL']} was not found.", self.driver.page_source.__str__())
+
+    def test_book_more_than_clubs_points(self):
+        """
+        Use case :
+        1. User sees index page
+        2. User logins with a valid email
+        3. User sees showSummary page
+        4. User tries to book more places than clubs points
+        """
+        self.driver.get(self.get_server_url())
+
+        # User sees index page and then fills and submits email form
+        self.sees_page('index', '#email')
+        self.submits_login_form(app.config['VALID_EMAIL'][1])
+
+        # User sees showSummary page and then clicks on competition link to book places
+        self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][1]}", self.driver.find_element_by_tag_name("h2").text)
+        self.clicks_on_book(app.config['COMPETITION_NAME'][0], app.config['CLUB_NAME'][1])
+
+        # User sees booking page and then fills places and submits booking form
+        self.wait.until(lambda driver: self.get_el('#submit-form'))
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][1], _external=True)
+        self.assertIn(f"Booking for {app.config['COMPETITION_NAME'][0]}", self.driver.title)
+        self.enter_text_field("#places", app.config['PLACES'][1])
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][1], _external=True)
+        self.assertIn("Number of places required is greater than club's points", self.driver.page_source.__str__())
+
+    def test_book_more_than_max_places(self):
+        """
+        Use case :
+        1. User sees index page
+        2. User logins with a valid email
+        3. User sees showSummary page
+        4. User tries to book more places than max places allowed
+        """
+        self.driver.get(self.get_server_url())
+
+        # User sees index page and then fills and submits email form
+        self.sees_page('index', '#email')
+        self.submits_login_form(app.config['VALID_EMAIL'][0])
+
+        # User sees showSummary page and then clicks on competition link to book places
+        self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][0]}", self.driver.find_element_by_tag_name("h2").text)
+        self.clicks_on_book(app.config['COMPETITION_NAME'][0], app.config['CLUB_NAME'][0])
+
+        # User sees booking page and then fills places and submits booking form
+        self.wait.until(lambda driver: self.get_el('#submit-form'))
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn(f"Booking for {app.config['COMPETITION_NAME'][0]}", self.driver.title)
+        self.enter_text_field("#places", app.config['PLACES'][2])
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn("Number of places required is greater than maximum places authorized", self.driver.page_source.__str__())
+
+    def test_book_more_than_places_competition(self):
+        """
+        Use case :
+        1. User sees index page
+        2. User logins with a valid email
+        3. User sees showSummary page
+        4. User tries to book more places than max places allowed
+        """
+        self.driver.get(self.get_server_url())
+
+        # User sees index page and then fills and submits email form
+        self.sees_page('index', '#email')
+        self.submits_login_form(app.config['VALID_EMAIL'][0])
+
+        # User sees showSummary page and then clicks on competition link to book places
+        self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][0]}", self.driver.find_element_by_tag_name("h2").text)
+        self.clicks_on_book(app.config['COMPETITION_NAME'][2], app.config['CLUB_NAME'][0])
+
+        # User sees booking page and then fills places and submits booking form
+        self.wait.until(lambda driver: self.get_el('#submit-form'))
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][2],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn(f"Booking for {app.config['COMPETITION_NAME'][2]}", self.driver.title)
+        self.enter_text_field("#places", app.config['PLACES'][3])
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][2],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn("Number of places required is greater than competition's number of places ", self.driver.page_source.__str__())
