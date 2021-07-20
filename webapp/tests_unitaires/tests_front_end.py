@@ -95,7 +95,6 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
 
     @parameterized.expand([
         ("Spring Festival 2021", "Simply Lift", "john@simplylift.co", "12", "Points available: 1"),
-        ("Fall Classic 2021", "Iron Temple", "admin@irontemple.com",  "4", "Points available: 0"),
     ])
     def test_places_required_ok(self, competition_name, club_name, club_email, places, expected_club_points):
         """
@@ -115,7 +114,7 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         self.assertIn(expected_club_points, self.driver.page_source.__str__())
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 
 if __name__ == "__main__":

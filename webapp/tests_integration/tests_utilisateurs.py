@@ -86,6 +86,11 @@ class UsersTests(LiveServerTestCase):
         self.sees_page('index', '#email')
         self.assertIn("You are logged out !", self.driver.page_source.__str__())
 
+    def ctrl_logout(self, route):
+        self.wait.until(lambda driver: route not in self.driver.current_url)
+        self.sees_page('index', '#email')
+        self.assertIn("You are logged out !", self.driver.page_source.__str__())
+
     def enter_text_field(self, selector, text):
         """
         Method to feed a text field
@@ -129,8 +134,6 @@ class UsersTests(LiveServerTestCase):
         7. User sees index page after redirecting
         """
         self.driver.get(self.get_server_url())
-
-        # User sees index page and then fills and submits email form
         self.sees_page('index', '#email')
         self.submits_login_form(app.config['VALID_EMAIL'][0])
 
