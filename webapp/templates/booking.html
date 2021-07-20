@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>Booking for {{competition['name']}} || GUDLFT</title>
+{% endblock title %}
+{% block content %}
+    <h2>{{competition['name']}}</h2>
+    Places available: {{competition['numberOfPlaces']}}
+    <form action="/purchasePlaces" method="post">
+        <input type="hidden" name="club" value="{{club['name']}}">
+        <input type="hidden" name="competition" value="{{competition['name']}}">
+        <input type="hidden" name="club-points" value="{{club['points']}}" id="club-points">
+        <input type="hidden" name="competition-places" value="{{competition['numberOfPlaces']}}" id="competition-places">
+        <input type="hidden" name="max-booking-places" value="{{config['MAX_BOOKING_PLACES']}}" id="max-booking-places">
+        <label for="places">How many places?</label><input type="number" name="places" id="places" min="1" max="{{competition['numberOfPlaces']}}"/>
+        <button type="submit" id="submit-form">Book</button>
+        <p id="error-message"></p>
+    </form>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/booking-front-validation.js') }}"></script>
+    {% with messages = get_flashed_messages(with_categories=True)%}
+        {% if messages %}
+            <ul>
+           {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <li class="alert alert-danger">{{message}}</li>
+                {% else %}
+                    <li class="alert alert-success">{{message}}</li>
+                {% endif %}
+           {% endfor %}
+           </ul>
+        {% endif%}
+    {%endwith%}
+{% endblock content %}

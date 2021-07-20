@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Display Points | GUDLFT Registration</title>
+{% endblock title %}
+
+{% block content %}
+<br/>
+<h2 align="center">List of clubs and their points</h2>
+<br/>
+
+{% if clubs %}
+    <div class="container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <table class="tablecenterheadCSS table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" >Name</th>
+                            <th scope="col">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for club in clubs %}
+                        <tr>
+                            <td align="center">{{ club["name"] }}</td>
+                            <td align="center">{{ club["points"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center">No club to display</div>
+{% endif %}
+<br />
+<a href="{{url_for('logout')}}" id="logout-link">Logout</a>
+{% endblock content %}

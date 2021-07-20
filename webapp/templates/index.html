@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>Index | GUDLFT Registration</title>
+{% endblock title %}
+{% block content %}
+    <h1>Welcome to the GUDLFT Registration Portal!</h1>
+    Please enter your secretary email to continue:
+    <form action="showSummary" method="post">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email"/>
+        <button type="submit" id="login-button">Enter</button>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=True)%}
+        {% if messages %}
+            <ul>
+           {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <li class="alert alert-danger">{{message}}</li>
+                {% else %}
+                    <li class="alert alert-success">{{message}}</li>
+                {% endif %}
+            {% endfor %}
+           </ul>
+        {% endif%}
+    {%endwith%}
+{% endblock content %}

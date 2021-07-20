@@ -1,1 +1,7 @@
+.idea/
+.coverage
 env/
+__pycache__/
+webapp/__pycache__/
+webapp/*/__pycache__/
+geckodriver.log
