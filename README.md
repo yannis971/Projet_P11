@@ -118,6 +118,15 @@ Une fois l'environnement virtuel activé et les dépendances du projet Projet_P1
 
 `python run.py`
 
+Remarque :
+
+![](images/python_run_py.png)
+
+La log du serveur d'application a été volontairement désactivée.
+
+Pour arrêter le serveur d'application, appuyer simultanément sur les touches Ctrl et C.
+
+
 Ouvrir dans un navigateur l'URL `http://127.0.0.1:5000/` et se connecter avec l'email d'un club défini dans le fichier `webapp/clubs.json`
 
 #### 4.2) Exécuter les tests unitaires
@@ -210,13 +219,17 @@ Vous pouvez télécharger les rapports que vous souhaitez analyser en cliquant s
 
 ##### 4.3.1) Procédure pour exécuter les tests de performance en mode automatique
 
-Une fois l'environnement virtuel activé, en étant positionné dans le dossier `projects/Projet_P11`, lancer la commande :
+Une fois l'environnement virtuel activé, en étant positionné dans le dossier `projects/Projet_P11`, lancer le serveur d'application :
+
+`python run.py`
+
+Dans une autre invite de commande et dans le même environnement virtuel activé, exécuter la commande suivante dans le dossier `projects/Projet_P11` :
 
 `locust --config=custom_locust.conf`
 
 Les tests de performance sont configurés pour une durée de 30 secondes (`run-time = 30s`)
 
-A l'issue des tests, les résultats (rapports) sont disponibles dans le dossier `locust_results`
+A l'issue des tests, les résultats (rapports) sont disponibles dans le dossier `locust_results`.
 
 ### 5) Mesure de la couverture de code avec `coverage`
 

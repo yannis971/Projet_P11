@@ -22,9 +22,9 @@
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <h2 class="stats">
-            81 statements &nbsp;
+            84 statements &nbsp;
             <button type="button" class="run shortkey_r button_toggle_run" title="Toggle lines run">0 run</button>
-            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">81 missing</button>
+            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">84 missing</button>
             <button type="button" class="exc show_exc shortkey_x button_toggle_exc" title="Toggle lines excluded">0 excluded</button>
         </h2>
     </div>
@@ -155,19 +155,22 @@
     <p id="t101" class="pln"><span class="n"><a href="#t101">101</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t102" class="pln"><span class="n"><a href="#t102">102</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t103" class="pln"><span class="n"><a href="#t103">103</a></span><span class="t"><span class="com"># TODO: Add route for points display</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t104" class="pln"><span class="n"><a href="#t104">104</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t105" class="pln"><span class="n"><a href="#t105">105</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t106" class="mis show_mis"><span class="n"><a href="#t106">106</a></span><span class="t"><span class="op">@</span><span class="nam">app</span><span class="op">.</span><span class="nam">route</span><span class="op">(</span><span class="str">'/logout'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t107" class="mis show_mis"><span class="n"><a href="#t107">107</a></span><span class="t"><span class="key">def</span> <span class="nam">logout</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t108" class="mis show_mis"><span class="n"><a href="#t108">108</a></span><span class="t">    <span class="nam">session</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="str">'email'</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t109" class="mis show_mis"><span class="n"><a href="#t109">109</a></span><span class="t">    <span class="nam">flash</span><span class="op">(</span><span class="str">'You are logged out !'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t110" class="mis show_mis"><span class="n"><a href="#t110">110</a></span><span class="t">    <span class="key">return</span> <span class="nam">redirect</span><span class="op">(</span><span class="nam">url_for</span><span class="op">(</span><span class="str">'index'</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t104" class="mis show_mis"><span class="n"><a href="#t104">104</a></span><span class="t"><span class="op">@</span><span class="nam">app</span><span class="op">.</span><span class="nam">route</span><span class="op">(</span><span class="str">'/displayPoints'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t105" class="mis show_mis"><span class="n"><a href="#t105">105</a></span><span class="t"><span class="key">def</span> <span class="nam">displayPoints</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t106" class="mis show_mis"><span class="n"><a href="#t106">106</a></span><span class="t">    <span class="key">return</span> <span class="nam">render_template</span><span class="op">(</span><span class="str">"display_points.html"</span><span class="op">,</span> <span class="nam">clubs</span><span class="op">=</span><span class="nam">clubs</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t107" class="pln"><span class="n"><a href="#t107">107</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t108" class="pln"><span class="n"><a href="#t108">108</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t109" class="mis show_mis"><span class="n"><a href="#t109">109</a></span><span class="t"><span class="op">@</span><span class="nam">app</span><span class="op">.</span><span class="nam">route</span><span class="op">(</span><span class="str">'/logout'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t110" class="mis show_mis"><span class="n"><a href="#t110">110</a></span><span class="t"><span class="key">def</span> <span class="nam">logout</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t111" class="mis show_mis"><span class="n"><a href="#t111">111</a></span><span class="t">    <span class="nam">session</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="str">'email'</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t112" class="mis show_mis"><span class="n"><a href="#t112">112</a></span><span class="t">    <span class="nam">flash</span><span class="op">(</span><span class="str">'You are logged out !'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t113" class="mis show_mis"><span class="n"><a href="#t113">113</a></span><span class="t">    <span class="key">return</span> <span class="nam">redirect</span><span class="op">(</span><span class="nam">url_for</span><span class="op">(</span><span class="str">'index'</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </div>
 <div id="footer">
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.5</a>,
-            created at 2021-07-20 09:34 +0200
+            created at 2021-07-20 09:52 +0200
         </p>
     </div>
 </div>
