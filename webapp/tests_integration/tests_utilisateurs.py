@@ -12,9 +12,9 @@ opts = FirefoxOptions()
 opts.add_argument("--headless")
 
 
-class LoginLogoutTests(LiveServerTestCase):
+class UsersTests(LiveServerTestCase):
     """
-    class to test login and logout
+    class to test all functions from login to logout
     """
     # Allows fork process on macOS and Windows
     multiprocessing.set_start_method("fork")
@@ -42,6 +42,18 @@ class LoginLogoutTests(LiveServerTestCase):
         link = self.get_el("#logout-link")
         ActionChains(self.driver).click(link).perform()
 
+    def clicks_on_book(self, competition_name, club_name):
+        links = self.driver.find_elements_by_tag_name("a")
+        url = self.get_server_url() + "/book/" + f"{competition_name}/{club_name}"
+        for link in links:
+            if link.get_attribute("href").replace("%20", " ") == url:
+                ActionChains(self.driver).click(link).perform()
+
+    def ctrl_logout(self, route):
+        self.wait.until(lambda driver: route not in self.driver.current_url)
+        self.sees_page('index', '#email')
+        self.assertIn("You are logged out !", self.driver.page_source.__str__())
+
     def enter_text_field(self, selector, text):
         """
         Method to feed a text field
@@ -64,6 +76,13 @@ class LoginLogoutTests(LiveServerTestCase):
         self.enter_text_field('#email', email)
         self.get_el('#login-button').click()
 
+    def submits_booking_form(self, places):
+        """
+        Method to feed en submit login form
+        """
+        self.enter_text_field("#places", places)
+        self.driver.find_element_by_id("submit-form").click()
+
     def test_user_login_logout(self):
         """
         Use case :
@@ -75,11 +94,12 @@ class LoginLogoutTests(LiveServerTestCase):
         """
         self.driver.get(self.get_server_url())
         self.sees_page('index', '#email')
-        self.submits_login_form(app.config['VALID_EMAIL'])
+        self.submits_login_form(app.config['VALID_EMAIL'][0])
         self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][0]}", self.driver.find_element_by_tag_name("h2").text)
         self.clicks_on_logout()
-        self.wait.until(lambda driver: 'showSummary' not in self.driver.current_url)
-        self.sees_page('index', '#email')
+        self.ctrl_logout('showSummary')
+
 
     def test_user_login_denied(self):
         """
@@ -93,3 +113,62 @@ class LoginLogoutTests(LiveServerTestCase):
         self.submits_login_form(app.config['NON_VALID_EMAIL'])
         self.wait.until(lambda driver: 'showSummary' not in self.driver.current_url)
         self.sees_page('index', '#email')
+        self.assertIn(f"Sorry, that email {app.config['NON_VALID_EMAIL']} was not found.", self.driver.page_source.__str__())
+
+    def test_book_more_than_clubs_points(self):
+        """
+        Use case :
+        1. User sees index page
+        2. User logins with a valid email
+        3. User sees showSummary page
+        4. User tries to book more places than clubs points
+        """
+        self.driver.get(self.get_server_url())
+
+        # User sees index page and then fills and submits email form
+        self.sees_page('index', '#email')
+        self.submits_login_form(app.config['VALID_EMAIL'][1])
+
+        # User sees showSummary page and then clicks on competition link to book places
+        self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][1]}", self.driver.find_element_by_tag_name("h2").text)
+        self.clicks_on_book(app.config['COMPETITION_NAME'][0], app.config['CLUB_NAME'][1])
+
+        # User sees booking page and then fills places and submits booking form
+        self.wait.until(lambda driver: self.get_el('#submit-form'))
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][1], _external=True)
+        self.assertIn(f"Booking for {app.config['COMPETITION_NAME'][0]}", self.driver.title)
+        self.enter_text_field("#places", app.config['PLACES'][1])
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][0],
+                                                  club=app.config['CLUB_NAME'][1], _external=True)
+        self.assertIn("Number of places required is greater than club's points", self.driver.page_source.__str__())
+
+    def test_book_more_than_places_competition(self):
+        """
+        Use case :
+        1. User sees index page
+        2. User logins with a valid email
+        3. User sees showSummary page
+        4. User tries to book more places than max places allowed
+        """
+        self.driver.get(self.get_server_url())
+
+        # User sees index page and then fills and submits email form
+        self.sees_page('index', '#email')
+        self.submits_login_form(app.config['VALID_EMAIL'][0])
+
+        # User sees showSummary page and then clicks on competition link to book places
+        self.sees_page('showSummary', '#logout-link')
+        self.assertIn(f"Welcome, {app.config['VALID_EMAIL'][0]}", self.driver.find_element_by_tag_name("h2").text)
+        self.clicks_on_book(app.config['COMPETITION_NAME'][2], app.config['CLUB_NAME'][0])
+
+        # User sees booking page and then fills places and submits booking form
+        self.wait.until(lambda driver: self.get_el('#submit-form'))
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][2],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn(f"Booking for {app.config['COMPETITION_NAME'][2]}", self.driver.title)
+        self.enter_text_field("#places", app.config['PLACES'][3])
+        assert self.driver.current_url == url_for('book', competition=app.config['COMPETITION_NAME'][2],
+                                                  club=app.config['CLUB_NAME'][0], _external=True)
+        self.assertIn("Number of places required is greater than competition's number of places ", self.driver.page_source.__str__())
