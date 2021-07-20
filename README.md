@@ -11,17 +11,17 @@ Ce projet consiste à cloner le projet https://github.com/OpenClassrooms-Student
 
 A la racine du projet, on trouve :
 - un package `webapp`contenant le code de l'application web "Güdlft Registration"
-- un fichier `config.py` avec les paramètres de configution de l'application
+- un fichier `config.py` avec les paramètres de configuration de l'application
 - un fichier `run.py` qui permet de lancer le serveur d'application
-- un fichier `locustfile.py`et son fichier de configuration customisé `custom_locust.fonf` qui permettent de lancer les tests de performance
+- un fichier `locustfile.py`et son fichier de configuration customisé `custom_locust.conf` qui permettent de lancer les tests de performance
 
 Le package `webapp` contient :
 - un dossier `static` avec les ressources statiques : code **Javascript** et code **CSS**
 - un dossier `templates` avec les pages **HTML** du site
 - un package `tests_integration`
 - un package `tests_unitaires`
-- les fichiers JSON :
-- un fichier `server.py` contenant les différentes vues (views) (fonctions exécutées en fonction des URL ou routes a)
+- les fichiers JSON : `clubs.json` et `competitions.json`
+- un fichier `server.py` contenant les différentes vues (views) (fonctions exécutées en fonction des URL ou routes gérées par l'application web)
 
 
 #### 1.2) GitFlow du projet
@@ -98,7 +98,7 @@ Se placer à la racine du projet (dossier `projects/Projet_P11`) et lancer la co
 
 `python3 -m venv env`
 
-Une fois l'environnement virtuel  `env` créé, l'activer avec la commande :
+Une fois l'environnement virtuel `env` créé, l'activer avec la commande :
 
 `source env/bin/activate`
 
@@ -132,6 +132,10 @@ Une fois l'environnement virtuel activé, en étant positionné dans le dossier 
 
 `python -m unittest webapp/tests_unitaires/tests_back_end.py`
 
+Avec l'option `-v` (mode verbeux), on peut afficher la liste des tests exécutés :
+
+`python -m unittest webapp/tests_unitaires/tests_back_end.py -v`
+
 **Commande pour exécuter les tests Front End**
 
 Le fichier `webapp/tests_unitaires/tests_front_end.py` permet de tester unitairement le code front-end (code Javascript contenu dans le fichier `webapp/static/js/booking-front-validation.py`).
@@ -164,11 +168,11 @@ Une fois l'environnement virtuel activé, en étant positionné dans le dossier 
 
 `python run.py`
 
-Dans une autre invite de commande et dans le même environnement virtuel activé, exécuter la commande suivante dans le dossier `projects/Projet_P11 :
+Dans une autre invite de commande et dans le même environnement virtuel activé, exécuter la commande suivante dans le dossier `projects/Projet_P11` :
 
 `locust`
 
-Ouvrir dans un navigateur l'URL `http://127.0.0.1:5000/`
+Ouvrir dans un navigateur l'URL `http://127.0.0.1:8089/`
 
 **Connexion**
 
@@ -198,7 +202,7 @@ Consulter les différents onglets
 
 ![](images/locust_download_data.png)
 
-Vous pouvez télécharger les rapport que vous souhaitez analyser en cliquant sur les liens
+Vous pouvez télécharger les rapports que vous souhaitez analyser en cliquant sur les liens
 
 **Rapport de tests Locust**
 
