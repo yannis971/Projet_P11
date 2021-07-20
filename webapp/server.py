@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from datetime import datetime
 from flask import Flask, flash, render_template, request, redirect, session, url_for
 
@@ -7,6 +8,10 @@ from flask import Flask, flash, render_template, request, redirect, session, url
 app = Flask(__name__)
 app.config.from_object('config')
 
+# Désactiver la log du serveur Flask
+log = logging.getLogger('werkzeug')
+log.disabled = True
+app.logger.disabled = True
 
 def loadClubs():
     with open(os.path.join(app.config['BASE_DIR'], os.path.dirname(__file__), 'clubs.json')) as c:
