@@ -90,7 +90,7 @@ class FrontEndBookingUnitTests(LiveServerTestCase):
         assert "Number of places required is greater than maximum places authorized" in self.driver.page_source
 
     @parameterized.expand([
-        ("Spring Festival", "Simply Lift", "john@simplylift.co", "12", "Points available: 1"),
+        ("Spring Festival 2021", "Simply Lift", "john@simplylift.co", "12", "Points available: 1"),
     ])
     def test_places_required_ok(self, competition_name, club_name, club_email, places, expected_club_points):
         """
